@@ -1,0 +1,32 @@
+version: '3.7'
+services:
+    db:
+        image: mysql:5.7
+        restart: always
+        env_file:
+            - .env
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DB}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        ports:
+            - ${MYSQL_LOCAL_PORT}:${MYSQL_DOCKER_PORT}
+        volumes:
+            - ./mysql-dump:/docker-entrypoint-initdb.d
+        networks:
+            - fastapi
+    web:
+        build: .
+        restart: always
+        volumes:
+            - .:/app
+        ports:
+            - ${APP_LOCAL_PORT}:${APP_DOCKER_PORT}
+        depends_on:
+            - db
+        networks:
+            - fastapi
+networks:
+    fastapi:
+        driver: bridge
